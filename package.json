@@ -1,5 +1,5 @@
 {
-  "name": "build-week-scaffolding-node",
+  "name": "crypto-backend-rjo",
   "version": "1.0.0",
   "scripts": {
     "start": "node index.js",
@@ -7,10 +7,10 @@
     "migrate": "knex migrate:latest",
     "rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
-    "migrateh": "heroku run knex migrate:latest -a YOUR_HEROKU_APP_NAME",
-    "rollbackh": "heroku run knex migrate:rollback -a YOUR_HEROKU_APP_NAME",
-    "databaseh": "heroku pg:psql -a YOUR_HEROKU_APP_NAME",
-    "seedh": "heroku run knex seed:run -a YOUR_HEROKU_APP_NAME",
+    "migrateh": "heroku run knex migrate:latest -a crypto-backend-rjo",
+    "rollbackh": "heroku run knex migrate:rollback -a crypto-backend-rjo",
+    "databaseh": "heroku pg:psql -a crypto-backend-rjo",
+    "seedh": "heroku run knex seed:run -a crypto-backend-rjo",
     "test": "cross-env NODE_ENV=testing jest --verbose --runInBand",
     "deploy": "git push heroku main"
   },
