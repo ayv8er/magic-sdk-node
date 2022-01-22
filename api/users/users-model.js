@@ -4,8 +4,8 @@ const findAll = () => {
   return db("users_table");
 };
 
-const findBy = (filter) => {
-  return db("users_table").select("user_id", "user_email").where(filter);
+const findByEmail = (email) => {
+  return db("users_table").where("user_email", email).first();
 };
 
 const addUser = async (user) => {
@@ -23,9 +23,15 @@ const updateUser = async (id, changes) => {
   return updatedUser;
 };
 
+const deleteUser = async (id) => {
+  const deletedUser = await db("users_table").where("user_id", id).del();
+  return deletedUser;
+};
+
 module.exports = {
   findAll,
-  findBy,
+  findByEmail,
   addUser,
   updateUser,
+  deleteUser,
 };
