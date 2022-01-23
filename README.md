@@ -1,6 +1,7 @@
 # Crypto Market Cap BE
 
 ## URL
+https://crypto-backend-rjo.herokuapp.com/
 
 ### **-----TABLES-----**
 
