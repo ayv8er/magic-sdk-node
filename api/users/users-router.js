@@ -3,6 +3,11 @@ const Users = require("./users-model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../secrets/index");
+const {
+  checkCredentialsBody,
+  checkUserEmailFree,
+  checkUserEmailExist,
+} = require("../middleware");
 
 router.get("/", (req, res, next) => {
   Users.findAll()
@@ -21,38 +26,47 @@ router.delete("/delete/:user_id", (req, res, next) => {
     .catch(next);
 });
 
-router.post("/register", (req, res, next) => {
-  const { user_password } = req.body;
-  let user = req.body;
-  const hash = bcrypt.hashSync(user.user_password, 8);
-  user.user_password = hash;
+router.post(
+  "/register",
+  checkCredentialsBody,
+  checkUserEmailFree,
+  (req, res, next) => {
+    const { user_password } = req.body;
+    let user = req.body;
+    const hash = bcrypt.hashSync(user.user_password, 8);
+    user.user_password = hash;
 
-  Users.addUser(user)
-    .then((newUser) => {
-      bcrypt.compareSync(user_password, newUser[0].user_password);
-      const token = generateToken(newUser[0]);
-      res.status(201).json({
-        message: `Welcome ${newUser[0].user_email}`,
+    Users.addUser(user)
+      .then((newUser) => {
+        bcrypt.compareSync(user_password, newUser[0].user_password);
+        const token = generateToken(newUser[0]);
+        res.status(201).json({
+          message: `Welcome ${newUser[0].user_email}`,
+          token,
+        });
+      })
+      .catch(next);
+  }
+);
+
+router.post(
+  "/login",
+  checkCredentialsBody,
+  checkUserEmailExist,
+  async (req, res, next) => {
+    const { user_password } = req.body;
+
+    if (req.user && bcrypt.compareSync(user_password, req.user.user_password)) {
+      const token = generateToken(req.user);
+      res.status(200).json({
+        message: `Welcome back ${req.user.user_email}`,
         token,
       });
-    })
-    .catch(next);
-});
-
-router.post("/login", async (req, res, next) => {
-  const { user_email, user_password } = req.body;
-
-  const realUser = await Users.findByEmail(user_email);
-  if (realUser && bcrypt.compareSync(user_password, realUser.user_password)) {
-    const token = generateToken(realUser);
-    res.status(200).json({
-      message: `Welcome back ${realUser.user_email}`,
-      token,
-    });
-  } else {
-    next({ status: 401, message: "invalid credentials " });
+    } else {
+      next({ status: 401, message: "invalid credentials " });
+    }
   }
-});
+);
 
 function generateToken(user) {
   const payload = {
