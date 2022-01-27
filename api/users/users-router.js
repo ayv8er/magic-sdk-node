@@ -7,6 +7,7 @@ const {
   checkCredentialsBody,
   checkUserEmailFree,
   checkUserEmailExist,
+  checkUserIdExist,
 } = require("../middleware");
 
 router.get("/", (req, res, next) => {
@@ -17,9 +18,8 @@ router.get("/", (req, res, next) => {
     .catch(next);
 });
 
-router.delete("/delete/:user_id", (req, res, next) => {
-  const { user_id } = req.params;
-  Users.deleteUser(user_id)
+router.delete("/delete/:user_id", checkUserIdExist, (req, res, next) => {
+  Users.deleteUser(req.user.user_id)
     .then(() => {
       res.status(200).json({ message: "User profile has been deleted" });
     })
@@ -33,6 +33,8 @@ router.post(
   (req, res, next) => {
     const { user_password } = req.body;
     let user = req.body;
+    user.user_email.toLowerCase();
+    console.log(user.user_email);
     const hash = bcrypt.hashSync(user.user_password, 8);
     user.user_password = hash;
 

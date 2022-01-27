@@ -42,8 +42,24 @@ const checkUserEmailExist = async (req, res, next) => {
   }
 };
 
+const checkUserIdExist = async (req, res, next) => {
+  try {
+    const { user_id } = req.params;
+    const existing = await Users.findById(user_id);
+    if (!existing) {
+      res.status(400).json({ message: "user does not exist" });
+    } else {
+      req.user = existing;
+      next();
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   checkCredentialsBody,
   checkUserEmailFree,
   checkUserEmailExist,
+  checkUserIdExist,
 };
