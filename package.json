@@ -1,5 +1,5 @@
 {
-  "name": "crypto-backend-rjo",
+  "name": "magic-sdk-node",
   "version": "1.0.0",
   "scripts": {
     "start": "node index.js",
@@ -7,10 +7,10 @@
     "migrate": "knex migrate:latest",
     "rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
-    "migrateh": "heroku run knex migrate:latest -a crypto-backend-rjo",
-    "rollbackh": "heroku run knex migrate:rollback -a crypto-backend-rjo",
-    "databaseh": "heroku pg:psql -a crypto-backend-rjo",
-    "seedh": "heroku run knex seed:run -a crypto-backend-rjo",
+    "migrateh": "heroku run knex migrate:latest -a magic-sdk-node",
+    "rollbackh": "heroku run knex migrate:rollback -a magic-sdk-node",
+    "databaseh": "heroku pg:psql -a magic-sdk-node",
+    "seedh": "heroku run knex seed:run -a magic-sdk-node",
     "test": "cross-env NODE_ENV=testing jest --verbose --runInBand",
     "deploy": "git push heroku main"
   },
@@ -19,12 +19,11 @@
   },
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^5.0.1",
+    "@magic-sdk/admin": "^1.4.1",
     "cors": "2.8.5",
     "dotenv": "10.0.0",
     "express": "4.17.1",
     "helmet": "4.6.0",
-    "jsonwebtoken": "^8.5.1",
     "knex": "0.95.14",
     "knex-cleaner": "1.3.1",
     "pg": "8.7.1"
@@ -36,9 +35,5 @@
     "jest": "27.4.4",
     "nodemon": "2.0.15",
     "supertest": "6.1.6"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bloominstituteoftechnology/build-week-scaffolding-node.git"
   }
 }

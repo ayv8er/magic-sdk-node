@@ -1,65 +1,42 @@
+const { Magic } = require("@magic-sdk/admin");
+const magic = new Magic(process.env.MAGIC_SECRET_KEY);
 const Users = require("./users/users-model");
 
-const checkCredentialsBody = (req, res, next) => {
-  const { user_email, user_password } = req.body;
-  if (
-    !user_email ||
-    user_email.trim() === "" ||
-    typeof user_email !== "string" ||
-    !user_password
-  ) {
-    return next({ status: 400, message: "email and password required" });
-  }
-  next();
-};
-
-const checkUserEmailFree = async (req, res, next) => {
+const checkValidDIDToken = async (req, res, next) => {
+  const didToken = req.headers.authorization.substr(7);
   try {
-    const { user_email } = req.body;
-    const existing = await Users.findByEmail(user_email);
-    if (existing) {
-      res.status(422).json({ message: "email address is taken" });
-    } else {
-      next();
-    }
+    await magic.token.validate(didToken);
+    req.token = didToken;
+    next();
   } catch (err) {
-    next(err);
+    next({ status: 401, message: err.message });
   }
 };
 
-const checkUserEmailExist = async (req, res, next) => {
+const checkLoginCredentialExist = async (req, res, next) => {
+  const { didToken } = req.token;
   try {
-    const { user_email } = req.body;
-    const existing = await Users.findByEmail(user_email);
-    if (!existing) {
-      res.status(401).json({ message: "invalid credentials" });
-    } else {
-      req.user = existing;
+    const { issuer, email, publicAddress } =
+      await magic.users.getMetadataByToken(didToken);
+    const response = await Users.findByIssuerID(issuer);
+    if (response) {
       next();
     }
-  } catch (err) {
-    next(err);
-  }
-};
-
-const checkUserIdExist = async (req, res, next) => {
-  try {
-    const { user_id } = req.params;
-    const existing = await Users.findById(user_id);
-    if (!existing) {
-      res.status(400).json({ message: "user does not exist" });
-    } else {
-      req.user = existing;
-      next();
-    }
+    const user = {
+      user_issuer: issuer,
+      user_credential: email,
+      user_public_address: publicAddress,
+    };
+    await Users.addUser(user).then((user) => {
+      console.log(user);
+      next().catch(next);
+    });
   } catch (err) {
     next(err);
   }
 };
 
 module.exports = {
-  checkCredentialsBody,
-  checkUserEmailFree,
-  checkUserEmailExist,
-  checkUserIdExist,
+  checkValidDIDToken,
+  checkLoginCredentialExist,
 };
